@@ -1,0 +1,134 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DGateResourceManager.ViewModels"
+        xmlns:models="using:DGateResourceManager.Models"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+        x:Class="DGateResourceManager.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Death Gate Resource Manager"
+        Width="1000" Height="700">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open Directory..." Click="OpenDirectory_Click" HotKey="Ctrl+O"/>
+                <MenuItem Header="_Refresh" Command="{Binding RefreshCommand}" HotKey="F5"/>
+                <Separator/>
+                <MenuItem Header="E_xit" HotKey="Alt+F4"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="300,5,*">
+            <!-- Resource List -->
+            <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Padding="5">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0" Text="Resources" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ListBox Grid.Row="1" 
+                             ItemsSource="{Binding Resources}"
+                             SelectedItem="{Binding SelectedResource}"
+                             SelectionChanged="ResourceList_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical" Margin="2">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding Type}" FontSize="11" Foreground="DarkGray"/>
+                                    <TextBlock Text="{Binding Size, StringFormat='{}{0:N0} bytes'}" FontSize="10" Foreground="Gray"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Background="LightGray"/>
+
+            <!-- Resource Details/Preview -->
+            <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" Padding="5">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0" Text="Resource Details" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ScrollViewer Grid.Row="1">
+                        <StackPanel IsVisible="{Binding SelectedResource, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <!-- Basic Info -->
+                            <TextBlock Text="{Binding SelectedResource.Name, StringFormat='Name: {0}'}" Margin="0,2"/>
+                            <TextBlock Text="{Binding SelectedResource.Type, StringFormat='Type: {0}'}" Margin="0,2"/>
+                            <TextBlock Text="{Binding SelectedResource.Size, StringFormat='Size: {0:N0} bytes'}" Margin="0,2"/>
+                            <TextBlock Text="{Binding SelectedResource.FilePath, StringFormat='Path: {0}'}" Margin="0,2" TextWrapping="Wrap"/>
+                            
+                            <Separator Margin="0,10"/>
+                            
+                            <!-- Resource-specific details -->
+                            <ContentControl Content="{Binding SelectedResource}">
+                                <ContentControl.DataTemplates>
+                                    <!-- Image Resource Template -->
+                                    <DataTemplate DataType="models:ImageResource">
+                                        <StackPanel>
+                                            <TextBlock Text="Image Details:" FontWeight="Bold" Margin="0,0,0,5"/>
+                                            <TextBlock Text="{Binding Width, StringFormat='Width: {0} pixels'}" Margin="0,2"/>
+                                            <TextBlock Text="{Binding Height, StringFormat='Height: {0} pixels'}" Margin="0,2"/>
+                                            <TextBlock Text="{Binding ColorDepth, StringFormat='Color Depth: {0} bits'}" Margin="0,2"/>
+                                            <TextBlock Text="{Binding HasPalette, StringFormat='Has Palette: {0}'}" Margin="0,2"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                    
+                                    <!-- Video Resource Template -->
+                                    <DataTemplate DataType="models:VideoResource">
+                                        <StackPanel>
+                                            <TextBlock Text="Video Details:" FontWeight="Bold" Margin="0,0,0,5"/>
+                                            <TextBlock Text="{Binding FrameCount, StringFormat='Frames: {0}'}" Margin="0,2"/>
+                                            <TextBlock Text="{Binding Duration, StringFormat='Duration: {0} ms'}" Margin="0,2"/>
+                                            <TextBlock Text="{Binding FrameRate, StringFormat='Frame Rate: {0} fps'}" Margin="0,2"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                    
+                                    <!-- Audio Resource Template -->
+                                    <DataTemplate DataType="models:AudioResource">
+                                        <StackPanel>
+                                            <TextBlock Text="Audio Details:" FontWeight="Bold" Margin="0,0,0,5"/>
+                                            <TextBlock Text="{Binding Duration, StringFormat='Duration: {0} ms'}" Margin="0,2"/>
+                                            <TextBlock Text="{Binding SampleRate, StringFormat='Sample Rate: {0} Hz'}" Margin="0,2"/>
+                                            <TextBlock Text="{Binding Channels, StringFormat='Channels: {0}'}" Margin="0,2"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                    
+                                    <!-- Text Resource Template -->
+                                    <DataTemplate DataType="models:TextResource">
+                                        <StackPanel>
+                                            <TextBlock Text="Text Content:" FontWeight="Bold" Margin="0,0,0,5"/>
+                                            <ItemsControl ItemsSource="{Binding TextLines}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}" Margin="0,1" TextWrapping="Wrap"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ContentControl.DataTemplates>
+                            </ContentControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="LightGray" Padding="5">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{Binding SelectedDirectory, StringFormat='Directory: {0}'}" 
+                          VerticalAlignment="Center" FontSize="11" Margin="10,0,0,0"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
