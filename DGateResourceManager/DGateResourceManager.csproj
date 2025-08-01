@@ -20,8 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Assets\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 </Project>
