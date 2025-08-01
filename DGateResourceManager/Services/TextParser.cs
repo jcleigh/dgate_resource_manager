@@ -5,16 +5,28 @@ using System.IO;
 namespace DGateResourceManager.Services;
 
 /// <summary>
-/// Basic text parser that demonstrates binary data parsing similar to the original C++ implementation.
-/// This is a simplified version of the complex Huffman decompression found in the original models/text.cpp
+/// Specialized parser for Death Gate text resources that handles the game's proprietary
+/// text compression formats. Death Gate used sophisticated Huffman compression algorithms
+/// similar to those found in other Legend Entertainment games.
+/// 
+/// This implementation provides basic parsing capabilities and serves as a foundation
+/// for more advanced decompression algorithms found in the original C++ version.
 /// </summary>
 public class TextParser
 {
-    // Header structure similar to cHeader from the original C++
+    /// <summary>
+    /// Header structure for Death Gate text resources, matching the cHeader structure
+    /// from the original C++ implementation. Contains metadata about the compressed text data.
+    /// </summary>
     public struct TextHeader
     {
+        /// <summary>Number of text strings contained in this resource</summary>
         public ushort StringCount;
+        
+        /// <summary>Size of the compressed data stream in bytes</summary>
         public ushort StreamSize;
+        
+        /// <summary>Compression flags indicating format version and options</summary>
         public ushort Flags;
     }
 
