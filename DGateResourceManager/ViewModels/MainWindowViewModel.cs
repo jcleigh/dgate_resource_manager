@@ -23,7 +23,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
         _resourceManager = resourceManager;
         Resources = new ObservableCollection<IResourceModel>();
         
-        OpenDirectoryCommand = new RelayCommand(async () => await OpenDirectoryAsync());
+        OpenDirectoryCommand = new RelayCommand(() => OpenDirectory());
         RefreshCommand = new RelayCommand(async () => await RefreshResourcesAsync());
     }
 
@@ -72,7 +72,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     public ICommand OpenDirectoryCommand { get; }
     public ICommand RefreshCommand { get; }
 
-    private async Task OpenDirectoryAsync()
+    private Task OpenDirectory()
     {
         try
         {
@@ -83,6 +83,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
         {
             StatusMessage = $"Error: {ex.Message}";
         }
+        return Task.CompletedTask;
     }
 
     public async Task OpenDirectoryAsync(string directoryPath)
