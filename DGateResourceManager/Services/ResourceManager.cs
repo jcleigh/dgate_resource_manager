@@ -8,15 +8,45 @@ using DGateResourceManager.Services;
 
 namespace DGateResourceManager;
 
+/// <summary>
+/// Interface for managing Death Gate resource files. Provides methods to discover, 
+/// load, and validate Death Gate game directories and their associated resource files.
+/// </summary>
 public interface IResourceManager
 {
+    /// <summary>
+    /// Asynchronously loads and analyzes all Death Gate resources from the specified directory.
+    /// </summary>
+    /// <param name="directoryPath">Path to the directory containing Death Gate game files</param>
+    /// <returns>A list of discovered and parsed resource models</returns>
     Task<List<IResourceModel>> LoadDirectoryAsync(string directoryPath);
+    
+    /// <summary>
+    /// Asynchronously loads the raw binary data from a resource file.
+    /// </summary>
+    /// <param name="filePath">Full path to the resource file</param>
+    /// <returns>Byte array containing the file's binary data</returns>
     Task<byte[]> LoadResourceDataAsync(string filePath);
+    
+    /// <summary>
+    /// Validates whether a directory contains recognizable Death Gate resource files.
+    /// </summary>
+    /// <param name="directoryPath">Path to the directory to validate</param>
+    /// <returns>True if the directory contains known Death Gate files, false otherwise</returns>
     bool IsValidResourceDirectory(string directoryPath);
 }
 
+/// <summary>
+/// Core service for discovering, loading, and parsing Death Gate game resource files.
+/// Recognizes and processes images (.PIC, .SCR), videos (.FLI, .FLC), audio (.XMI, .WAV), 
+/// and text (.TXT, .DAT) resources from the classic 1994 adventure game.
+/// </summary>
 public class ResourceManager : IResourceManager
 {
+    /// <summary>
+    /// Known Death Gate image files including screenshots, backgrounds, and UI elements.
+    /// These files typically use custom image formats with 8-bit color palettes.
+    /// </summary>
     private readonly HashSet<string> _knownImageFiles = new(StringComparer.OrdinalIgnoreCase)
     {
         "DGLOGO.SCR", "EAPMLOGO.SCR", "LSLOGO.SCR", "TITLE.SCR",
@@ -24,16 +54,28 @@ public class ResourceManager : IResourceManager
         "CHARGEN.SCR", "ENDGAME.SCR", "DEATH.SCR", "PAPER.SCR"
     };
 
+    /// <summary>
+    /// Known Death Gate video files including FLIC animations and cutscenes.
+    /// FLIC format was popular for game animations in the 1990s.
+    /// </summary>
     private readonly HashSet<string> _knownVideoFiles = new(StringComparer.OrdinalIgnoreCase)
     {
         "INTRO.FLC", "ENDING.FLC", "DEATH.FLC"
     };
 
+    /// <summary>
+    /// Known Death Gate audio files including XMIDI music and WAV sound effects.
+    /// XMIDI is an extended MIDI format with enhanced timing and controller data.
+    /// </summary>
     private readonly HashSet<string> _knownAudioFiles = new(StringComparer.OrdinalIgnoreCase)
     {
         "MUSIC.XMI", "SOUND.XMI", "VOICE.WAV"
     };
 
+    /// <summary>
+    /// Known Death Gate text files containing game dialog, strings, and narrative text.
+    /// These files often use sophisticated Huffman compression algorithms.
+    /// </summary>
     private readonly HashSet<string> _knownTextFiles = new(StringComparer.OrdinalIgnoreCase)
     {
         "STRINGS.TXT", "DIALOG.TXT", "ITEMS.TXT"
